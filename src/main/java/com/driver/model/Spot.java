@@ -11,6 +11,7 @@ public class Spot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Enumerated(EnumType.STRING)
     private SpotType spotType;
 
     private int pricePerHour;
@@ -22,7 +23,7 @@ public class Spot {
     private ParkingLot parkingLot;
 
     @OneToMany(mappedBy = "spot", cascade = CascadeType.ALL)
-    List<Reservation> reservationList = new ArrayList<>();
+    private List<Reservation> reservationList= new ArrayList<>();
 
     public Spot() {
         this.occupied = false;
