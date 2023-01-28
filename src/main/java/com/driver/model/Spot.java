@@ -25,12 +25,13 @@ public class Spot {
     List<Reservation> reservationList = new ArrayList<>();
 
     public Spot() {
+        this.occupied = false;
     }
 
     public Spot(SpotType spotType, int pricePerHour, boolean occupied) {
         this.spotType = spotType;
         this.pricePerHour = pricePerHour;
-        this.occupied = occupied;
+        this.occupied = false;
     }
 
     public int getId() {
