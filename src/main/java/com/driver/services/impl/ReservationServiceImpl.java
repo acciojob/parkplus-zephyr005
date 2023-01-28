@@ -77,7 +77,7 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         if(!checkSpot){
-            throw new Exception("Cannot make reservation");
+            throw new Exception("null");
         }
 
         Reservation reservation = new Reservation();
