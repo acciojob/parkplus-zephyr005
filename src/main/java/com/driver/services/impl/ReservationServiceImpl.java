@@ -34,6 +34,19 @@ public class ReservationServiceImpl implements ReservationService {
 
             List<Spot> spotList = parkingLot.getSpotList();
 
+            boolean checkSpot = false;
+
+            for(Spot spot : spotList){
+                if(!spot.getOccupied()){
+                    checkSpot = true;
+                    break;
+                }
+            }
+
+            if(!checkSpot){
+                throw new Exception("Cannot make reservation");
+            }
+
             SpotType requestedSpotType;
             if(numberOfWheels > 4){
                 requestedSpotType = SpotType.OTHERS;
@@ -45,7 +58,7 @@ public class ReservationServiceImpl implements ReservationService {
                 requestedSpotType = SpotType.TWO_WHEELER;
             }
 
-            boolean checkSpot = false;
+            checkSpot = false;
 
             int minPrice = Integer.MAX_VALUE;
 
