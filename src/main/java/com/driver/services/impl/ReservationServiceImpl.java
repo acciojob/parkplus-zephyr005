@@ -33,42 +33,51 @@ public class ReservationServiceImpl implements ReservationService {
 
         List<Spot> spotList = parkingLot.getSpotList();
 
-        SpotType spotType;
+        SpotType requestedSpotType;
         if(numberOfWheels > 4){
-            spotType = SpotType.OTHERS;
+            requestedSpotType = SpotType.OTHERS;
         }
         else if (numberOfWheels > 2){
-            spotType = SpotType.FOUR_WHEELER;
+            requestedSpotType = SpotType.FOUR_WHEELER;
         }
         else {
-            spotType = SpotType.TWO_WHEELER;
+            requestedSpotType = SpotType.TWO_WHEELER;
         }
 
-        Spot minPriceSpot = null;
+        boolean checkSpot = false;
+
         int minPrice = Integer.MAX_VALUE;
 
+        Spot minPriceSpot = null;
+
         for(Spot spot : spotList){
-            if(spot.getOccupied() == false && minPrice <= spot.getPricePerHour() && spotType.equals(SpotType.TWO_WHEELER)){
-                if(spotType.equals(SpotType.TWO_WHEELER) || (spotType.equals(SpotType.FOUR_WHEELER) || spotType.equals(SpotType.OTHERS))){
+            if(requestedSpotType.equals(SpotType.OTHERS) && spot.getSpotType().equals(SpotType.OTHERS)){
+                if(spot.getPricePerHour()*timeInHours < minPrice && !spot.getOccupied()){
+                    minPrice = spot.getPricePerHour()*timeInHours;
+                    checkSpot = true;
                     minPriceSpot = spot;
                 }
-            }
 
-            else if(spot.getOccupied() == false && minPrice <= spot.getPricePerHour() && spotType.equals(SpotType.FOUR_WHEELER)){
-                if((spotType.equals(SpotType.FOUR_WHEELER) || spotType.equals(SpotType.OTHERS))){
-                    minPriceSpot = spot;
+                else if (requestedSpotType.equals(SpotType.FOUR_WHEELER) && spot.getSpotType().equals(SpotType.OTHERS) || spot.getSpotType().equals(SpotType.FOUR_WHEELER)){
+                    if(spot.getPricePerHour()*timeInHours < minPrice && !spot.getOccupied()){
+                        minPrice = spot.getPricePerHour()*timeInHours;
+                        checkSpot = true;
+                        minPriceSpot = spot;
+                    }
                 }
-            }
 
-            else if(spot.getOccupied() == false && minPrice <= spot.getPricePerHour() && spotType.equals(SpotType.OTHERS)){
-                minPriceSpot = spot;
+                else if (requestedSpotType.equals(SpotType.TWO_WHEELER) && spot.getSpotType().equals(SpotType.OTHERS) || spot.getSpotType().equals(SpotType.FOUR_WHEELER) || spot.getSpotType().equals(SpotType.TWO_WHEELER)){
+                    if(spot.getPricePerHour()*timeInHours < minPrice && !spot.getOccupied()){
+                        minPrice = spot.getPricePerHour()*timeInHours;
+                        checkSpot = true;
+                        minPriceSpot = spot;
+                    }
+                }
             }
         }
 
-
-
-        if(minPriceSpot == null){
-            throw new Exception("There is no slot available");
+        if(!checkSpot){
+            throw new Exception("Cannot make reservation");
         }
 
         Reservation reservation = new Reservation();
