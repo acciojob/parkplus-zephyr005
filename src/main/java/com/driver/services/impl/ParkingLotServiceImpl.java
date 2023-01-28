@@ -27,48 +27,48 @@ public class ParkingLotServiceImpl implements ParkingLotService {
 
     @Override
     public Spot addSpot(int parkingLotId, Integer numberOfWheels, Integer pricePerHour) {
-        SpotType spotType;
-        if(numberOfWheels == 2){
-            spotType = SpotType.TWO_WHEELER;
+        Spot spot = new Spot();
+        if(numberOfWheels > 4){
+            spot.setSpotType(SpotType.OTHERS);
         }
-        else if (numberOfWheels == 4){
-            spotType = SpotType.FOUR_WHEELER;
+        else if (numberOfWheels > 2){
+            spot.setSpotType(SpotType.FOUR_WHEELER);
         }
         else {
-            spotType = SpotType.OTHERS;
+            spot.setSpotType(SpotType.TWO_WHEELER);
         }
 
-        Spot spot = new Spot(spotType, pricePerHour, false);
-
         ParkingLot parkingLot = parkingLotRepository1.findById(parkingLotId).get();
-        parkingLot.getSpotList().add(spot);
-        parkingLotRepository1.save(parkingLot);
 
-        spotRepository1.save(spot);
+        spot.setParkingLot(parkingLot);
+
+        //bidirectional
+        parkingLot.getSpotList().add(spot);
+
+        parkingLotRepository1.save(parkingLot);
 
         return spot;
     }
 
     @Override
     public void deleteSpot(int spotId) {
-        Spot spot = spotRepository1.findById(spotId).get();
-        if (spot != null){
-            spotRepository1.delete(spot);
-        }
+        spotRepository1.deleteById(spotId);
     }
 
     @Override
     public Spot updateSpot(int parkingLotId, int spotId, int pricePerHour) {
+        ParkingLot parkingLot = parkingLotRepository1.findById(parkingLotId).get();
         Spot spot = spotRepository1.findById(spotId).get();
-        if(spot != null)
-            spot.setPricePerHour(pricePerHour);
+
+        spot.setPricePerHour(pricePerHour);
+        parkingLot.getSpotList().add(spot);
+        parkingLotRepository1.save(parkingLot);
+
         return spot;
     }
 
     @Override
     public void deleteParkingLot(int parkingLotId) {
-        ParkingLot parkingLot = parkingLotRepository1.findById(parkingLotId).get();
-        if(parkingLot != null)
-            parkingLotRepository1.delete(parkingLot);
+        parkingLotRepository1.deleteById(parkingLotId);
     }
 }

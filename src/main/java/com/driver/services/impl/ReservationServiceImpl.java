@@ -23,24 +23,25 @@ public class ReservationServiceImpl implements ReservationService {
     ParkingLotRepository parkingLotRepository3;
     @Override
     public Reservation reserveSpot(Integer userId, Integer parkingLotId, Integer timeInHours, Integer numberOfWheels) throws Exception {
-        User user = userRepository3.findById(userId).get();
-        ParkingLot parkingLot = parkingLotRepository3.findById(parkingLotId).get();
 
-        if(user == null || parkingLot == null){
+        if(!userRepository3.findById(userId).isPresent() || !parkingLotRepository3.findById(parkingLotId).isPresent()){
             throw new Exception("Reservation cannot be made");
         }
+
+        User user = userRepository3.findById(userId).get();
+        ParkingLot parkingLot = parkingLotRepository3.findById(parkingLotId).get();
 
         List<Spot> spotList = parkingLot.getSpotList();
 
         SpotType spotType;
-        if(numberOfWheels == 2){
-            spotType = SpotType.TWO_WHEELER;
+        if(numberOfWheels > 4){
+            spotType = SpotType.OTHERS;
         }
-        else if (numberOfWheels == 4){
+        else if (numberOfWheels > 2){
             spotType = SpotType.FOUR_WHEELER;
         }
         else {
-            spotType = SpotType.OTHERS;
+            spotType = SpotType.TWO_WHEELER;
         }
 
         Spot minPriceSpot = null;
@@ -64,21 +65,24 @@ public class ReservationServiceImpl implements ReservationService {
             }
         }
 
-        Reservation reservation = new Reservation();
 
-        if(minPriceSpot != null){
-            minPriceSpot.setOccupied(true);
-            user.getReservationList().add(reservation);
-            spotRepository3.save(minPriceSpot);
-            userRepository3.save(user);
-            reservation.setSpot(minPriceSpot);
-            reservation.setUser(user);
-            reservation.setNumberOfHours(timeInHours);
-            reservationRepository3.save(reservation);
-        }
-        else{
+
+        if(minPriceSpot == null){
             throw new Exception("There is no slot available");
         }
+
+        Reservation reservation = new Reservation();
+        minPriceSpot.setOccupied(true);
+        reservation.setNumberOfHours(timeInHours);
+        reservation.setSpot(minPriceSpot);
+        reservation.setUser(user);
+
+        //Bidirectional
+        minPriceSpot.getReservationList().add(reservation);
+        user.getReservationList().add(reservation);
+
+        userRepository3.save(user);
+        spotRepository3.save(minPriceSpot);
 
         return reservation;
     }
